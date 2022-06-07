@@ -1,0 +1,234 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>
+
+void generateHeader(int num, char name[30], char date[30], char time[30]);
+void generateBody(char item1[30], int qty, float price);
+void generateFooter(float total);
+void showmenu();
+
+
+
+struct details
+{
+    int num;
+    char name[30];
+    char date[30];
+    char time[30];
+    int numofitems;
+    struct items{
+        char item[30];
+        int qty;
+        float price;
+    } itm[30];
+};
+
+int main()
+{
+    int a, b, i, j, total = 0, invoiceFound = 0;
+    char save = 'y', cont = 'y';
+    char customer[30];
+    struct details det;
+    struct details ord;
+    FILE *fp;
+
+    do{
+        total=0;
+    printf("\n");
+    printf("\n\n\t==========Restaurant Managemant==========\n");
+    printf("\nSelect your preferred operation:\n");
+    printf("\n1. Generate Invoice");
+    printf("\n2. View all Invoice");
+    printf("\n3. Search Invoice");
+    printf("\n4. View Stock");
+    printf("\n5. Update Stock");
+    printf("\n6. Exit\n");
+    printf("\nYou choose:\t");
+    scanf("%d", &a);
+    fgetc(stdin);
+
+    switch (a)
+    {
+    case 1:
+        // system("clear");
+        printf("\nPlease enter customer name: ");
+        fgets(det.name, 30, stdin);
+        det.name[strlen(det.name) - 1] = 0;
+        strcpy(det.date, __DATE__);
+        strcpy(det.time, __TIME__);
+        // CODE FOR INVOICE NUMBER
+        det.num = time(NULL)/1000;
+
+        printf("\nHow many items you want to enter: ");
+        scanf("%d", &b);
+        det.numofitems = b;
+
+        for (i = 0; i < b; i++)
+        {
+            fgetc(stdin);
+            printf("\n\nPlease enter the item %d\t\t", i + 1);
+            fgets(det.itm[i].item, 30, stdin);
+            det.itm[i].item[strlen(det.itm[i].item) - 1] = 0;
+            printf("Please enter the quantity:\t");
+            scanf("%d", &det.itm[i].qty);
+            printf("Please enter the unit price:\t");
+            scanf("%f", &det.itm[i].price);
+        }
+        generateHeader(det.num, det.name, det.date, det.time);
+        for (i = 0; i < det.numofitems; i++)
+        {
+            generateBody(det.itm[i].item, det.itm[i].qty, det.itm[i].price);
+            total += det.itm[i].qty * det.itm[i].price;
+        }
+        generateFooter(total);
+
+        printf("Do you want to save the invoice[y/n]:\t");
+        scanf("%s", &save);
+        fgetc(stdin);
+        if (save == 'y')
+        {
+            fp = fopen("RestaurantBill.dat", "a+");
+            fwrite(&det, sizeof(struct details), 1, fp);
+            if (fwrite)
+            {
+                printf("\nSave successfully");
+            }
+            else
+            {
+                printf("\nError occurs");
+            }
+        }
+        break;
+
+    case 2:
+        j = 0;
+        fp = fopen("RestaurantBill.dat", "r");
+        printf("\n\n*********Your previous Invoice***********\n");
+        while (fread(&ord, sizeof(struct details), 1, fp))
+        {
+            total = 0;
+            printf("\nInvoice Number: %d*********", j + 1);
+            generateHeader(det.num, ord.name, ord.date, ord.time);
+            for (i = 0; i < ord.numofitems; i++)
+            {
+                generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
+                total += ord.itm[i].qty * ord.itm[i].price;
+            }
+            generateFooter(total);
+            j++;
+        }
+        fclose(fp);
+        break;
+
+    case 3:
+        printf("\nPlease enter the name of the customer: ");
+        fgets(customer, 50, stdin);
+        customer[strlen(customer) - 1] = 0;
+        fp = fopen("RestaurantBill.dat", "r");
+        printf("\n\n*********Invoice of %s***********", customer);
+        while (fread(&ord, sizeof(struct details), 1, fp))
+        {
+            total = 0;
+            if (!strcmp(ord.name, customer))
+            {
+                generateHeader(det.num, ord.name, ord.date, ord.time);
+                for (i = 0; i < ord.numofitems; i++)
+                {
+                    generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
+                    total += ord.itm[i].qty * ord.itm[i].price;
+                }
+                generateFooter(total);
+                invoiceFound = 1;
+            }
+        }
+        if (invoiceFound == 0)
+        {
+            printf("\n\nSorry invoice for %s does not found", customer);
+        }
+        fclose(fp);
+        break;
+    case 4:
+       showmenu();
+       break;
+
+
+
+
+    case 6:
+        printf("\n\t\tThanks for using our system,See you again :)\n\n");
+        exit(0);
+        break;
+
+    default:
+        printf("\nInvalid option");
+        break;
+    }
+    printf("\nDo you want to continue another operation[y/n]: ");
+    scanf("%s", &cont);
+    fgetc(stdin);
+    fflush(stdin);
+    }while(cont=='y');
+    printf("\n\t\tThanks for using our system,See you again :)\n");
+
+    printf("\n");
+    return 0;
+}
+
+void generateHeader(int num, char name[30], char date[30], char time[30])
+{
+    printf("\n\n");
+    printf("\t\tXYZ Restaurants");
+    printf("\n\t    -----------------------");
+    printf("\n\nInvoice Number: %d", num);
+    printf("\nInvoice to: %s", name);
+    printf("\nDate: %s", date);
+    printf("\nTime: %s", time);
+    printf("\n------------------------------------------------\n");
+    printf("To enjoy amazing offers and discounts,\nplease register as a loyalty customer");
+    printf("\n------------------------------------------------\n");
+    printf("Items\t\t");
+    printf("Quantity\t\t");
+    printf("Total\t\t");
+    printf("\n------------------------------------------------\n");
+}
+
+void generateBody(char item1[30], int qty, float price)
+{
+    printf("%s\t\t", item1);
+    printf("%d\t\t\t", qty);
+    printf("%0.2f\t\t", qty * price);
+    printf("\n");
+}
+
+void generateFooter(float total)
+{
+    float discount = 0.1 * total;
+    float vat = total * 0.05;
+    printf("------------------------------------------------\n");
+    printf("Sub Total\t\t\t\t%0.2f", total);
+    printf("\nDiscount 10%%\t\t\t\t%0.2f", discount);
+    printf("\n\t\t\t\t\t--------\n");
+    printf("Net total\t\t\t\t%0.2f", total - discount);
+    printf("\nVat 5%%\t\t\t\t\t%0.2f", vat);
+    printf("\n-------------------------------------------------\n");
+    printf("Grand total\t\t\t\t%0.2f", total - discount + vat);
+    printf("\n-------------------------------------------------\n");
+    printf("Address : Dhaka,Bangladesh\n");
+    printf("Email   : help.name@xyz.com\n");
+    printf("Phone   : 013-XXX-XXXXX\n");
+    printf("------------Thanks for choosing us---------------");
+    printf("\n-------------------------------------------------\n\n");
+}
+void showmenu(){
+    char *data[]={"burger","pizza","sandwi","pasta","chowme","chicken","shawrma","setmenu","nuggets","soup"};
+    int price[10] = {250,450,200,320,199,250,180,300,150,260};
+    printf("\n%s\t\t%s","Item Name","Price");
+    printf("\n-------------------------------------------------\n");
+    for(int i=0;i<10;i++){
+       
+        printf("%s\t\t\t",data[i]);
+        printf("   %d\n",price[i]);
+    }
+    printf("-------------------------------------------------\n\n");
+}
