@@ -99,6 +99,7 @@ int main()
                 printf("\nError occurs");
             }
         }
+        fclose(fp);
         break;
 
     case 2:
@@ -109,7 +110,7 @@ int main()
         {
             total = 0;
             printf("\nInvoice Number: %d*********", j + 1);
-            generateHeader(det.num, ord.name, ord.date, ord.time);
+            generateHeader(ord.num, ord.name, ord.date, ord.time);
             for (i = 0; i < ord.numofitems; i++)
             {
                 generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
