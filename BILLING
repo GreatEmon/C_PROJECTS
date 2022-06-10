@@ -6,9 +6,11 @@
 void generateHeader(int num, char name[30], char date[30], char time[30]);
 void generateBody(char item1[30], int qty, float price);
 void generateFooter(float total);
-void showmenu();
+void showMenu();
+int updateStock(char item,int qt);
 
-
+char *data[]={"burger","pizza","sandwi","pasta","chowme","chicken","shawrma","setmenu","nuggets","soup"};
+int quantity[10] = {250,450,200,320,199,250,180,300,150,260};
 
 struct details
 {
@@ -27,149 +29,209 @@ struct details
 int main()
 {
     int a, b, i, j, total = 0, invoiceFound = 0;
-    char save = 'y', cont = 'y';
+    char save = 'y', cont = 'y',ans='y';
+    char email[30] , password[30];
+    char gemail[30] = "admin";
+    char gpass[30] = "admin";
     char customer[30];
+    int result,qty;
+    char product;
     struct details det;
     struct details ord;
     FILE *fp;
-
-    do{
-        total=0;
+    
     printf("\n");
-    printf("\n\n\t==========Restaurant Managemant==========\n");
-    printf("\nSelect your preferred operation:\n");
-    printf("\n1. Generate Invoice");
-    printf("\n2. View all Invoice");
-    printf("\n3. Search Invoice");
-    printf("\n4. View Stock");
-    printf("\n5. Update Stock");
-    printf("\n6. Exit\n");
-    printf("\nYou choose:\t");
-    scanf("%d", &a);
+    printf("\n\n\t========== XYZ Restaurant ==========\n");
+    printf("\nWelcome to our Restaurant");
+    printf("Are you admin?[y/n]: ");
+    scanf("%s",&ans);
     fgetc(stdin);
 
-    switch (a)
-    {
-    case 1:
-        // system("clear");
-        printf("\nPlease enter customer name: ");
-        fgets(det.name, 30, stdin);
-        det.name[strlen(det.name) - 1] = 0;
-        strcpy(det.date, __DATE__);
-        strcpy(det.time, __TIME__);
-        // CODE FOR INVOICE NUMBER
-        det.num = time(NULL)/1000;
-
-        printf("\nHow many items you want to enter: ");
-        scanf("%d", &b);
-        det.numofitems = b;
-
-        for (i = 0; i < b; i++)
-        {
+    if(ans=='y'){
+        printf("\n\n\t========== XYZ Restaurant ==========\n");
+        printf("Please Login:");
+        printf("\nEnter your name: ");
+        fgets(email, 30, stdin);
+        email[strlen(email) - 1] = 0;
+        printf("Enter your password: ");
+        fgets(password, 30, stdin);
+        password[strlen(password) - 1] = 0;
+        if(!strcmp(email,gemail) && !strcmp(password,gpass)){
+            printf("\nLogin Successful from XYZ Restaurant");
+            printf("\n\n\t========== XYZ Restaurant ==========\n\n");
+            if(*__TIME__ >6 && *__TIME__ < 12){
+                   printf("Good Morning from XYZ Restaurant");
+            }else if(*__TIME__ >= 12 && *__TIME__ < 18){
+                   printf("Good Afternoon from XYZ Restaurant");
+            }else if(*__TIME__ >= 18 && *__TIME__<20){
+                   printf("Good Evening from XYZ Restaurant");
+            }else if(*__TIME__ >= 20){
+                printf("Good Night from XYZ Restaurant");
+            }
+            do{
+            total=0;
+            printf("\nManage your restaurant:)\n");
+            printf("\nSelect your preferred operation:\n");
+            printf("\n1. Generate Invoice");
+            printf("\n2. View all Invoice");
+            printf("\n3. Search Invoice");
+            printf("\n4. View Stock");
+            printf("\n5. Update Stock");
+            printf("\n6. Exit\n");
+            printf("\nYou choose:\t");
+            scanf("%d", &a);
             fgetc(stdin);
-            printf("\n\nPlease enter the item %d\t\t", i + 1);
-            fgets(det.itm[i].item, 30, stdin);
-            det.itm[i].item[strlen(det.itm[i].item) - 1] = 0;
-            printf("Please enter the quantity:\t");
-            scanf("%d", &det.itm[i].qty);
-            printf("Please enter the unit price:\t");
-            scanf("%f", &det.itm[i].price);
-        }
-        generateHeader(det.num, det.name, det.date, det.time);
-        for (i = 0; i < det.numofitems; i++)
-        {
-            generateBody(det.itm[i].item, det.itm[i].qty, det.itm[i].price);
-            total += det.itm[i].qty * det.itm[i].price;
-        }
-        generateFooter(total);
 
-        printf("Do you want to save the invoice[y/n]:\t");
-        scanf("%s", &save);
-        fgetc(stdin);
-        if (save == 'y')
-        {
-            fp = fopen("RestaurantBill.dat", "a+");
-            fwrite(&det, sizeof(struct details), 1, fp);
-            if (fwrite)
+            switch (a)
             {
-                printf("\nSave successfully");
-            }
-            else
-            {
-                printf("\nError occurs");
-            }
-        }
-        fclose(fp);
-        break;
+            case 1:
+                // system("clear");
+                printf("\nPlease enter customer name: ");
+                fgets(det.name, 30, stdin);
+                det.name[strlen(det.name) - 1] = 0;
+                strcpy(det.date, __DATE__);
+                strcpy(det.time, __TIME__);
+                // CODE FOR INVOICE NUMBER
+                det.num = time(NULL)/1000;
 
-    case 2:
-        j = 0;
-        fp = fopen("RestaurantBill.dat", "r");
-        printf("\n\n*********Your previous Invoice***********\n");
-        while (fread(&ord, sizeof(struct details), 1, fp))
-        {
-            total = 0;
-            printf("\nInvoice Number: %d*********", j + 1);
-            generateHeader(ord.num, ord.name, ord.date, ord.time);
-            for (i = 0; i < ord.numofitems; i++)
-            {
-                generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
-                total += ord.itm[i].qty * ord.itm[i].price;
-            }
-            generateFooter(total);
-            j++;
-        }
-        fclose(fp);
-        break;
+                printf("\nHow many items you want to enter: ");
+                scanf("%d", &b);
+                det.numofitems = b;
 
-    case 3:
-        printf("\nPlease enter the name of the customer: ");
-        fgets(customer, 50, stdin);
-        customer[strlen(customer) - 1] = 0;
-        fp = fopen("RestaurantBill.dat", "r");
-        printf("\n\n*********Invoice of %s***********", customer);
-        while (fread(&ord, sizeof(struct details), 1, fp))
-        {
-            total = 0;
-            if (!strcmp(ord.name, customer))
-            {
-                generateHeader(det.num, ord.name, ord.date, ord.time);
-                for (i = 0; i < ord.numofitems; i++)
+                for (i = 0; i < b; i++)
                 {
-                    generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
-                    total += ord.itm[i].qty * ord.itm[i].price;
+                    fgetc(stdin);
+                    printf("\n\nPlease enter the item %d\t\t", i + 1);
+                    fgets(det.itm[i].item, 30, stdin);
+                    det.itm[i].item[strlen(det.itm[i].item) - 1] = 0;
+                    printf("Please enter the quantity:\t");
+                    scanf("%d", &det.itm[i].qty);
+                    printf("Please enter the unit price:\t");
+                    scanf("%f", &det.itm[i].price);
+                }
+                generateHeader(det.num, det.name, det.date, det.time);
+                for (i = 0; i < det.numofitems; i++)
+                {
+                    generateBody(det.itm[i].item, det.itm[i].qty, det.itm[i].price);
+                    total += det.itm[i].qty * det.itm[i].price;
                 }
                 generateFooter(total);
-                invoiceFound = 1;
+
+                printf("Do you want to save the invoice[y/n]:\t");
+                scanf("%s", &save);
+                fgetc(stdin);
+                if (save == 'y')
+                {
+                    fp = fopen("RestaurantBill.dat", "a+");
+                    fwrite(&det, sizeof(struct details), 1, fp);
+                    if (fwrite)
+                    {
+                        printf("\nSave successfully");
+                    }
+                    else
+                    {
+                        printf("\nError occurs");
+                    }
+                }
+                fclose(fp);
+                break;
+
+            case 2:
+                j = 0;
+                fp = fopen("RestaurantBill.dat", "r");
+                printf("\n\n*********Your previous Invoice***********\n");
+                while (fread(&ord, sizeof(struct details), 1, fp))
+                {
+                    total = 0;
+                    printf("\nInvoice Number: %d*********", j + 1);
+                    generateHeader(ord.num, ord.name, ord.date, ord.time);
+                    for (i = 0; i < ord.numofitems; i++)
+                    {
+                        generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
+                        total += ord.itm[i].qty * ord.itm[i].price;
+                    }
+                    generateFooter(total);
+                    j++;
+                }
+                fclose(fp);
+                break;
+
+            case 3:
+                printf("\nPlease enter the name of the customer: ");
+                fgets(customer, 30, stdin);
+                customer[strlen(customer) - 1] = 0;
+                fp = fopen("RestaurantBill.dat", "r");
+                printf("\n\n*********Invoice of %s***********",customer);
+                while (fread(&ord, sizeof(struct details), 1, fp))
+                {
+                    total = 0;
+                    if (!strcmp(ord.name, customer))
+                    {
+                        generateHeader(ord.num, ord.name, ord.date, ord.time);
+                        for (i = 0; i < ord.numofitems; i++)
+                        {
+                            generateBody(ord.itm[i].item, ord.itm[i].qty, ord.itm[i].price);
+                            total += ord.itm[i].qty * ord.itm[i].price;
+                        }
+                        generateFooter(total);
+                        invoiceFound = 1;
+                    }
+                }
+                if (invoiceFound == 0)
+                {
+                    printf("\n\nSorry invoice for %s does not found", customer);
+                }
+                fclose(fp);
+                break;
+            case 4:
+                showMenu();
+                break;
+
+            case 5:
+              printf("Please enter product name:");
+              scanf("%s",&product);
+              printf("Please enter product quantity:");
+              scanf("%d",&qty);
+              fgetc(stdin);
+              result = updateStock(product,qty);
+              if(result==0){
+                  printf("Updated Successfully");
+              }else if(result==1){
+                  printf("Added Successfully");
+              }
+            break;
+
+            case 6:
+                printf("\n\t\tThanks for using our system,See you again :)\n\n");
+                exit(0);
+                break;
+
+            default:
+                printf("\nInvalid option");
+                break;
             }
+            printf("\nDo you want to continue another operation[y/n]: ");
+            scanf("%s", &cont);
+            fgetc(stdin);
+            fflush(stdin);
+            }while(cont=='y');
+        }else{
+            printf("\nSorry invalid email or passsword");
+            printf("you enter %s and is %s",email,gemail);
+            printf("you enter %s and is %s",password,gpass);
+            
+            exit(0);
         }
-        if (invoiceFound == 0)
-        {
-            printf("\n\nSorry invoice for %s does not found", customer);
-        }
-        fclose(fp);
-        break;
-    case 4:
-       showmenu();
-       break;
 
+    }else{
+        //customer option
 
-
-
-    case 6:
-        printf("\n\t\tThanks for using our system,See you again :)\n\n");
-        exit(0);
-        break;
-
-    default:
-        printf("\nInvalid option");
-        break;
     }
-    printf("\nDo you want to continue another operation[y/n]: ");
-    scanf("%s", &cont);
-    fgetc(stdin);
-    fflush(stdin);
-    }while(cont=='y');
+    
+    
+ 
+
+    
     printf("\n\t\tThanks for using our system,See you again :)\n");
 
     printf("\n");
@@ -221,15 +283,31 @@ void generateFooter(float total)
     printf("------------Thanks for choosing us---------------");
     printf("\n-------------------------------------------------\n\n");
 }
-void showmenu(){
-    char *data[]={"burger","pizza","sandwi","pasta","chowme","chicken","shawrma","setmenu","nuggets","soup"};
-    int price[10] = {250,450,200,320,199,250,180,300,150,260};
-    printf("\n%s\t\t%s","Item Name","Price");
+void showMenu(){
+    int size=sizeof(data)/4;
+    printf("\n%s\t\t%s","Item Name","Quantity");
     printf("\n-------------------------------------------------\n");
-    for(int i=0;i<10;i++){
-       
+    for(int i=0;i<size;i++){
         printf("%s\t\t\t",data[i]);
-        printf("   %d\n",price[i]);
+        printf("   %d\n",quantity[i]);
     }
     printf("-------------------------------------------------\n\n");
+}
+
+int updateStock(char item,int qt){
+    int found =0;
+    int size=sizeof(data)/4;
+     for(int i =0;i<size;i++){
+         if(*data[i]== item){
+             quantity[i]=qt;
+             found=1;
+             return 0;
+         }
+     }
+
+     if(found==0){       
+         data[size]=item;
+         quantity[size]=qt;
+         return 1;
+     }
 }
